@@ -2,39 +2,29 @@ package main
 
 import "fmt"
 
-func maskBytesExactMatch(data []byte, target []byte) []byte {
+func maskBytesByPosition(data []byte, start, length int) []byte {
 	result := make([]byte, len(data))
 	copy(result, data)
 
-	targetLen := len(target)
-	if targetLen == 0 {
+	if start < 0 || start >= len(result) {
 		return result
 	}
-	for i := 0; i <= len(result)-targetLen; i++ {
-		match := true
-		for j := 0; j < targetLen; j++ {
-			if result[i+j] != target[j] {
-				match = false
-				break
-			}
-		}
 
-		if match {
-			for j := 0; j < targetLen; j++ {
-				result[i+j] = '*'
-			}
-		}
+	end := start + length
+	if end > len(result) {
+		end = len(result)
 	}
 
+	for i := start; i < end; i++ {
+		result[i] = '*'
+
+	}
 	return result
 }
-
 func main() {
-	text := []byte("Hello, it's my page:\nhttp://localhost123.com See you")
-	target := []byte("localhost123.com")
-
-	masked := maskBytesExactMatch(text, target)
+	text := []byte("Hello, it's my page: http//localhost123.com See you ")
+	masked := maskBytesByPosition(text, 27, 16)
 	fmt.Printf("Было: %s\n", text)
-	fmt.Printf("Стало:%s\n", masked)
+	fmt.Printf("Стало: %s\n", masked)
 
 }

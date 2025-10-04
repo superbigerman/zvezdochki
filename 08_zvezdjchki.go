@@ -2,29 +2,48 @@ package main
 
 import "fmt"
 
-func maskBytesByPosition(data []byte, start, length int) []byte {
-	result := make([]byte, len(data))
-	copy(result, data)
+func maskaAfterURL(text string) string {
+	urlStart := -1
+	seeYouStart := -1
+	target := "http//"
+	endMarker := "See you"
+	for i := 0; i <= len(text)-len(target); i++ {
+		if text[i:i+len(target)] == target {
+			urlStart = i
+			break
 
-	if start < 0 || start >= len(result) {
-		return result
+		}
+
 	}
 
-	end := start + length
-	if end > len(result) {
-		end = len(result)
-	}
+	for i := 0; i < len(text)-len(endMarker); i++ {
+		if text[i:i+len(endMarker)] == endMarker {
+			seeYouStart = i
+			break
 
-	for i := start; i < end; i++ {
+		}
+	}
+	if urlStart == -1 {
+		return text
+	}
+	maskEnd := len(text)
+	if seeYouStart != -1 && seeYouStart > urlStart {
+		maskEnd = seeYouStart
+		if maskEnd > 0 && text[maskEnd-1] == ' ' {
+			maskEnd--
+		}
+	}
+	result := []byte(text)
+	for i := urlStart + len(target); i < maskEnd; i++ {
 		result[i] = '*'
-
 	}
-	return result
-}
-func main() {
-	text := []byte("Hello, it's my page: http//localhost123.com See you ")
-	masked := maskBytesByPosition(text, 27, 16)
-	fmt.Printf("Было: %s\n", text)
-	fmt.Printf("Стало: %s\n", masked)
+	return string(result)
 
+}
+
+func main() {
+	text := "Hello, it's my page: http//localhost123.com See you "
+	masked := maskaAfterURL(text)
+	fmt.Printf("было: %s\n", text)
+	fmt.Printf("стало: %s\n", masked)
 }
